@@ -1,22 +1,64 @@
-import logo from './logo.svg';
+import { useState } from 'react';
+import { ethers } from 'ethers';
+import Greeter from './artifacts/contracts/Greeter.sol/Greeter.json';
 import './App.css';
 
+const scGreeterAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+
 function App() {
+  const [greeting, setGreetingValue] = useState('')
+
+
+  async function requestAccount() {
+    // Promting user to connect with their MetaMask Account
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+  }
+
+  async function fetchGreeting() {
+    // Metamask / Browser Wallet needs to be installed.
+    if (typeof window.ethereum !== 'undefined') {
+      // Provider (Metamasks) talks to the Blockchain. And connects to the SmartContract
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const contract = new ethers.Contract(scGreeterAddress, Greeter.abi, provider)
+      try {
+        // greet() is a public view function in .sol smart contract.
+        const data = await contract.greet()
+        console.log('data: ', data);
+      } catch (err) {
+        console.log("Error: ", err)
+      }
+
+    }
+  }
+
+  async function setGreeting() {
+    if (!greeting) return
+    if (typeof window.ethereum !== 'undefined') {
+      await requestAccount()
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      const contract= new ethers.Contract(scGreeterAddress, Greeter.abi, signer)
+      const transaction = await contract.setGreeting(greeting)
+      setGreetingValue('')
+      // waiting for transaction geting mined.
+      await transaction.wait()
+      fetchGreeting()
+    }
+  }
+
+ 
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+       <button onClick={fetchGreeting}>Fetch Greeting</button>
+       <button onClick={setGreeting}>Set Greeting</button>
+       <input 
+          onChange={e  => setGreetingValue(e.target.value)} 
+          placeholder='Set Greeting'
+          value={greeting} 
+        />
+
       </header>
     </div>
   );
