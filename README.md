@@ -23,3 +23,5 @@ Deploy smart contract on testnetwork.
 
 `npm start`
 Open React App.
+<br>
+Go to MetaMask Account / Settings / Advanced --> Click 'Reset Account'
