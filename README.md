@@ -13,3 +13,13 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+## For restarting the dApp
+`npx hardhat node`
+Create a local testnetwork
+
+`npx hardhat run --network localhost scripts/deploy.js`
+Deploy smart contract on testnetwork.
+
+`npm start`
+Open React App.
